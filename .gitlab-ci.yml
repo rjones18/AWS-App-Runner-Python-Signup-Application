@@ -1,6 +1,5 @@
-
 stages:
-  - security scans
+  - unit test and security scans
   - dockerbuild
   - setup and deploy
 
@@ -9,8 +8,8 @@ variables:
    ECR_REPOSITORY: "614768946157.dkr.ecr.us-east-1.amazonaws.com/rjcloudwebsite"
    IMAGE_TAG: "latest"
 
-security scans:
-  stage: security scans
+unit test and security scans:
+  stage: unit test and security scans
   image: python:3.9
   before_script:
     - echo "Installing Update..."
@@ -19,10 +18,12 @@ security scans:
     - npm install -g snyk
     - snyk auth $SNYK_TOKEN
     - pip install bandit pylint
+    - pip install -r application_code/requirements.txt 
   script:
-    - snyk iac test --report || echo "Snyk found vulnerabilities!"
+    - python application_code/test_app.py
     - bandit -r ./application_code || true
     - pylint ./application_code || true
+    - snyk iac test --report || echo "Snyk found vulnerabilities!"
 
 
 dockerbuild:
