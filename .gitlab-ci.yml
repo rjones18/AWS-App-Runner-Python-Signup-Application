@@ -1,0 +1,68 @@
+
+stages:
+  - security scans
+  - dockerbuild
+  - setup and deploy
+
+variables:
+   AWS_DEFAULT_REGION: "us-east-1"
+   ECR_REPOSITORY: "614768946157.dkr.ecr.us-east-1.amazonaws.com/rjcloudwebsite"
+   IMAGE_TAG: "latest"
+
+security scans:
+  stage: security scans
+  image: python:3.9
+  before_script:
+    - echo "Installing Update..."
+    - apt-get update
+    - apt-get install -y nodejs npm
+    - npm install -g snyk
+    - snyk auth $SNYK_TOKEN
+    - pip install bandit pylint
+  script:
+    - snyk iac test --report || echo "Snyk found vulnerabilities!"
+    - bandit -r ./application_code || true
+    - pylint ./application_code || true
+
+
+dockerbuild:
+  stage: dockerbuild
+  image: docker:19.03.12 # Using a Docker-in-Docker image
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - echo "Installing dependencies..."
+    - apk add --no-cache curl py-pip python3 groff
+    - pip install awscli
+  script:
+    - echo "Logging in to AWS ECR..."
+    - eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+    - echo "Building Docker image..."
+    - cd application_code && docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+    - echo "Pushing Docker image to ECR..."
+    - docker push $ECR_REPOSITORY:$IMAGE_TAG
+  
+
+setup & deploy:
+  stage: setup and deploy
+  image: ruby:3.1
+  before_script:
+    - echo "Setting up for deployment..."
+    - apt-get update && apt-get install -y wget unzip
+    - wget https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+    - unzip terraform_1.0.0_linux_amd64.zip -d /usr/local/bin/
+    - terraform --version
+    - echo "Setting up AWS credentials..."
+    - mkdir -p ~/.aws/
+    - echo "[default]" > ~/.aws/credentials
+    - echo "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+    - echo "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+  script:
+    - echo "Initializing Terraform code..."
+    - terraform init
+    - echo "Validating Terraform code..."
+    - terraform validate
+    - echo "Generating Terraform plan..."
+    - terraform plan
+    - echo "Applying Terraform code..."
+    - terraform apply -auto-approve

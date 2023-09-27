@@ -37,7 +37,7 @@ resource "aws_apprunner_service" "example" {
       image_identifier      = "614768946157.dkr.ecr.us-east-1.amazonaws.com/rjcloudwebsite:latest"
       image_repository_type = "ECR"
     }
-    auto_deployments_enabled = false
+    auto_deployments_enabled = true
     authentication_configuration {
       access_role_arn = aws_iam_role.apprunner.arn
     }
@@ -59,3 +59,4 @@ resource "aws_apprunner_observability_configuration" "example" {
     vendor = "AWSXRAY"
   }
 }
+

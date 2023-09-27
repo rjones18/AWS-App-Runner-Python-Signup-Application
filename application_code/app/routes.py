@@ -3,13 +3,21 @@ from app import application # Importing the application module.
 from app.forms import SignUpForm # Importing the SignUpForm class function from the forms.py file 
 import boto3 # The AWS SDK for Python.
 
+# Secrets Manager
+def get_secret():
+    client = boto3.client('secretsmanager', region_name='us-east-1')
+    response = client.get_secret_value(SecretId='signup-app-secret')
+    return eval(response['SecretString'])
+
+secrets = get_secret()
+
 # dynamodb
-db = boto3.resource('dynamodb', region_name='us-east-2')
-table = db.Table('nameofyourtable')
+db = boto3.resource('dynamodb', region_name='us-east-1')
+table = db.Table(secrets["DynamoDBTableName"])
 
 # sns
-notification = boto3.client('sns', region_name='us-east-2')
-topic_arn = 'arn:aws:sns:us-east-2:XXXXXXXX'
+notification = boto3.client('sns', region_name='us-east-1')
+topic_arn = secrets["SNSARN"]
 
 
 @application.route('/')
