@@ -12,10 +12,14 @@ Complementing the infrastructure, I established a custom domain via AWS Route 53
 
 By harmonizing this avant-garde tech stack with AWS's formidable cloud capabilities, I've architected a Flask application that not only scales effortlessly but also upholds the pinnacle of data privacy and security standards.
 
+Link to website: https://signupapp.reggiestestdomain.com/
+
 
 ## Architecture Breakdown
 
 The Application is broken down into the architecture below:
 
 ![python](https://github.com/rjones18/Images/blob/main/Gitlab%20project.png)
+
+Link to Application Dependencies Code: [Here](https://github.com/rjones18/AWS-Python-Signup-Application-Dependencies)
 
