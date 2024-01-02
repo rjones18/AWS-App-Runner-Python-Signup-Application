@@ -19,7 +19,7 @@ Link to website: https://signupapp.reggiestestdomain.com/
 
 The Application is broken down into the architecture below:
 
-![python](https://github.com/rjones18/Images/blob/main/Gitlab%20project.png)
+![python](https://github.com/rjones18/Images/blob/main/Gitlab%20project.png) (Not Currently Deployed)
 
 Link to Application Dependencies Code: [Here](https://github.com/rjones18/AWS-Python-Signup-Application-Dependencies)
 
